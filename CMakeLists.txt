@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project (list-fonts-json)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+
 add_executable(list-fonts-json src/main.cc)
 
 if(CMAKE_HOST_WIN32)
@@ -14,4 +16,10 @@ elseif(CMAKE_HOST_APPLE)
     "-framework CoreText"
     "-framework Foundation"
   )
+
+elseif(CMAKE_HOST_UNIX)
+  find_package(Fontconfig REQUIRED)
+	target_sources(list-fonts-json PUBLIC ${list-fonts-json_SOURCE_DIR}/src/FontManagerLinux.cc)
+
+  target_link_libraries(list-fonts-json fontconfig)
 endif()
