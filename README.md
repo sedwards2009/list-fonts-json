@@ -73,6 +73,19 @@ First ensure you have a working C/C++ compiler and the fontconfig development fi
 The executable is left in the build directory.
 
 
+### Linux in Docker
+
+It is also possible to build the Linux binary via Docker. That advantage is that you don't need any extra tooling installed and the resulting executable should have greater compatibilitywith older Linux distributions.
+
+Run the script:
+
+```
+  ./build_linux_in_docker.sh
+```
+
+The executable is left in the build directory.
+
+
 ### Windows
 
 Make sure you have CMake installed and a "Visual Studio Visual C/C++ Build Tools 2015" or similar installed.
