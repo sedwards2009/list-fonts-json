@@ -1,0 +1,65 @@
+name: $(Date:yyyyMMdd)$(Rev:.r)_$(SourceBranchName)
+
+trigger:
+- master
+
+jobs:
+  - job: build_windows
+    displayName: "Windows build"
+    pool:
+      vmImage: 'vs2017-win2016'
+    steps:
+      - script: |
+          mkdir build
+          cd build
+          cmake ..
+          msbuild ALL_BUILD.vcxproj /p:Configuration=Release
+      - task: CopyFiles@2
+        inputs:
+          sourceFolder: '$(Build.SourcesDirectory)/build/Release/'
+          contents: '*.exe'
+          targetFolder: '$(Build.ArtifactStagingDirectory)'
+      - task: PublishPipelineArtifact@0
+        inputs:
+          artifactName: 'windows build output'
+          targetPath: '$(Build.ArtifactStagingDirectory)'
+
+  - job: build_macos
+    displayName: "macOS build"
+    pool:
+      vmImage: 'macOS-10.13'
+    steps:
+      - script: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          make
+      - task: CopyFiles@2
+        inputs:
+          sourceFolder: '$(Build.SourcesDirectory)/build/'
+          contents: 'list-fonts-json'
+          targetFolder: '$(Build.ArtifactStagingDirectory)'
+      - task: PublishPipelineArtifact@0
+        inputs:
+          artifactName: 'macOS build output'
+          targetPath: '$(Build.ArtifactStagingDirectory)'
+
+  - job: build_linux
+    displayName: "macOS build"
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    steps:
+      - script: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          make
+      - task: CopyFiles@2
+        inputs:
+          sourceFolder: '$(Build.SourcesDirectory)/build/'
+          contents: 'list-fonts-json'
+          targetFolder: '$(Build.ArtifactStagingDirectory)'
+      - task: PublishPipelineArtifact@0
+        inputs:
+          artifactName: 'Linux build output'
+          targetPath: '$(Build.ArtifactStagingDirectory)'
