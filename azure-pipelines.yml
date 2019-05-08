@@ -1,5 +1,4 @@
 name: $(Date:yyyyMMdd)$(Rev:.r)_$(SourceBranchName)
-
 trigger:
 - master
 
@@ -13,7 +12,10 @@ jobs:
           mkdir build
           cd build
           cmake ..
-          msbuild ALL_BUILD.vcxproj /p:Configuration=Release
+      - task: MSBuild@1
+        inputs:
+          solution: '**/*.sln'
+          msbuildArchitecture: 'x64'
       - task: CopyFiles@2
         inputs:
           sourceFolder: '$(Build.SourcesDirectory)/build/Release/'
