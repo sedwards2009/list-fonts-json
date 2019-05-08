@@ -45,7 +45,7 @@ jobs:
           targetPath: '$(Build.ArtifactStagingDirectory)'
 
   - job: build_linux
-    displayName: "macOS build"
+    displayName: "linux build"
     pool:
       vmImage: 'Ubuntu-16.04'
     steps:
