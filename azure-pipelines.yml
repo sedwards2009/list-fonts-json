@@ -16,6 +16,7 @@ jobs:
         inputs:
           solution: '**/*.sln'
           msbuildArchitecture: 'x64'
+          msbuildArguments: '/p:Configuration=Release'
       - task: CopyFiles@2
         inputs:
           sourceFolder: '$(Build.SourcesDirectory)/build/Release/'
