@@ -1,9 +1,17 @@
 cmake_minimum_required(VERSION 3.0)
 project (list-fonts-json)
 
+macro(msvc_set_static_runtime)
+    set(_vars CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO)
+    foreach(_var IN ITEMS ${_vars})
+        string(REGEX REPLACE "/MD" "/MT" ${_var} "${${_var}}")
+    endforeach()
+endmacro()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 if(CMAKE_HOST_WIN32)
+  msvc_set_static_runtime()
   set(CMAKE_GENERATOR_PLATFORM "x64")
   add_executable(list-fonts-json src/main.cc ${list-fonts-json_SOURCE_DIR}/src/FontManagerWindows.cc)
   target_link_libraries(list-fonts-json Dwrite)
