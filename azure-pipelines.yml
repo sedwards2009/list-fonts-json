@@ -11,7 +11,7 @@ jobs:
       - script: |
           mkdir build
           cd build
-          cmake ..
+          cmake -D CMAKE_GENERATOR_PLATFORM="x64" ..
       - task: MSBuild@1
         inputs:
           solution: '**/*.sln'
