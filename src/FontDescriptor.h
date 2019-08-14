@@ -127,6 +127,9 @@ private:
   }
 
   void printJsonString(const char *str) {
+    if (!str) {
+      return;
+    }
     const char *p = str;
     while (*p) {
       char c = *p;
@@ -144,9 +147,9 @@ private:
   }
 
   char *copyString(const char *input) {
-    if (!input)
+    if (!input) {
       return NULL;
-
+    }
     char *str = new char[strlen(input) + 1];
     strcpy(str, input);
     return str;
