@@ -6,11 +6,12 @@
 
 // throws a JS error when there is some exception in DirectWrite
 #define HR(hr) \
-  if (FAILED(hr)) throw "Font loading error";
+  if (FAILED(hr)) { printf("Font loading error at %s:%i\n", __FILE__, __LINE__); throw "Font loading error"; }
 
 char *utf16ToUtf8(const WCHAR *input) {
   unsigned int len = WideCharToMultiByte(CP_UTF8, 0, input, -1, NULL, 0, NULL, NULL);
-  char *output = new char[len];
+  char *output = new char[len + 1];
+  output[len] = '\0';
   WideCharToMultiByte(CP_UTF8, 0, input, -1, output, len, NULL, NULL);
   return output;
 }
@@ -21,9 +22,9 @@ unsigned int getLocaleIndex(IDWriteLocalizedStrings *strings) {
   BOOL exists = false;
 
   HR(strings->FindLocaleName(L"en-us", &index, &exists));
-  if (!exists)
+  if (!exists) {
     index = 0;
-
+  }
   return index;
 }
 
@@ -52,15 +53,15 @@ char *getString(IDWriteFont *font, DWRITE_INFORMATIONAL_STRING_ID string_id) {
     // convert to utf8
     res = utf16ToUtf8(str);
     delete str;
-    
+
     strings->Release();
   }
-  
+
   if (!res) {
     res = new char[1];
     res[0] = '\0';
   }
-  
+
   return res;
 }
 
@@ -170,9 +171,10 @@ ResultSet *getAvailableFonts() {
 
       FontDescriptor *result = resultFromFont(font);
       if (psNames.count(result->postscriptName) == 0) {
-        res->push_back(resultFromFont(font));
+        res->push_back(result);
         psNames.insert(result->postscriptName);
       }
+      font->Release();
     }
 
     family->Release();
