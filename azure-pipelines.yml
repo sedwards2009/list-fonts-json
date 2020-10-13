@@ -6,7 +6,7 @@ jobs:
   - job: build_windows
     displayName: "Windows build"
     pool:
-      vmImage: 'vs2015-win2012r2'
+      vmImage: 'vs2017-win2016'
     steps:
       - script: |
           mkdir build
@@ -30,7 +30,7 @@ jobs:
   - job: build_macos
     displayName: "macOS build"
     pool:
-      vmImage: 'macOS-10.13'
+      vmImage: 'macOS-10.14'
     steps:
       - script: |
           mkdir build
@@ -50,7 +50,7 @@ jobs:
   - job: build_linux
     displayName: "linux build"
     pool:
-      vmImage: 'Ubuntu-16.04'
+      vmImage: 'Ubuntu-18.04'
     steps:
       - script: |
           mkdir build
