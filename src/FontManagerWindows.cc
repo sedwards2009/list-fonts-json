@@ -4,9 +4,11 @@
 #include <dwrite_1.h>
 #include <unordered_set>
 
+#define TRACE() printf("-> Trace %s:%i %s\n", __FILE__, __LINE__, __func__)
+
 // throws a JS error when there is some exception in DirectWrite
 #define HR(hr) \
-  if (FAILED(hr)) throw "Font loading error";
+  if (FAILED(hr)) {printf("*** Font loading error at %s:%i ***\n", __FILE__, __LINE__); throw "Font loading error";}
 
 char *utf16ToUtf8(const WCHAR *input) {
   unsigned int len = WideCharToMultiByte(CP_UTF8, 0, input, -1, NULL, 0, NULL, NULL);
@@ -52,15 +54,15 @@ char *getString(IDWriteFont *font, DWRITE_INFORMATIONAL_STRING_ID string_id) {
     // convert to utf8
     res = utf16ToUtf8(str);
     delete str;
-    
+
     strings->Release();
   }
-  
+
   if (!res) {
     res = new char[1];
     res[0] = '\0';
   }
-  
+
   return res;
 }
 
@@ -136,6 +138,7 @@ FontDescriptor *resultFromFont(IDWriteFont *font) {
 }
 
 ResultSet *getAvailableFonts() {
+  TRACE();
   ResultSet *res = new ResultSet();
   int count = 0;
 
@@ -145,19 +148,25 @@ ResultSet *getAvailableFonts() {
     __uuidof(IDWriteFactory),
     reinterpret_cast<IUnknown**>(&factory)
   ));
-
+  TRACE();
   // Get the system font collection.
   IDWriteFontCollection *collection = NULL;
   HR(factory->GetSystemFontCollection(&collection));
+  TRACE();
 
   // Get the number of font families in the collection.
   int familyCount = collection->GetFontFamilyCount();
+  TRACE();
+  printf("familyCount=%i\n", familyCount);
 
   // track postscript names we've already added
   // using a set so we don't get any duplicates.
   std::unordered_set<std::string> psNames;
 
   for (int i = 0; i < familyCount; i++) {
+    TRACE();
+    printf("i=%i\n", i);
+
     IDWriteFontFamily *family = NULL;
 
     // Get the font family.
@@ -165,8 +174,13 @@ ResultSet *getAvailableFonts() {
     int fontCount = family->GetFontCount();
 
     for (int j = 0; j < fontCount; j++) {
+      TRACE();
+      printf("j=%i\n", j);
+
       IDWriteFont *font = NULL;
       HR(family->GetFont(j, &font));
+
+      TRACE();
 
       FontDescriptor *result = resultFromFont(font);
       if (psNames.count(result->postscriptName) == 0) {
@@ -174,12 +188,15 @@ ResultSet *getAvailableFonts() {
         psNames.insert(result->postscriptName);
       }
     }
+    TRACE();
 
     family->Release();
   }
 
   collection->Release();
   factory->Release();
+
+  TRACE();
 
   return res;
 }
