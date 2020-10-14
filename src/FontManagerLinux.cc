@@ -102,8 +102,14 @@ FontWidth convertWidth(int width) {
 }
 
 FontDescriptor *createFontDescriptor(FcPattern *pattern) {
-  FcChar8 *path, *psName, *family, *style;
-  int weight, width, slant, spacing;
+  FcChar8 *path = NULL;
+  FcChar8 *psName = NULL;
+  FcChar8 *family = NULL;
+  FcChar8 *style = NULL;
+  int weight = 0;
+  int width = 0;
+  int slant = 0;
+  int spacing = 0;
 
   FcPatternGetString(pattern, FC_FILE, 0, &path);
   FcPatternGetString(pattern, FC_POSTSCRIPT_NAME, 0, &psName);
@@ -130,8 +136,9 @@ FontDescriptor *createFontDescriptor(FcPattern *pattern) {
 
 ResultSet *getResultSet(FcFontSet *fs) {
   ResultSet *res = new ResultSet();
-  if (!fs)
+  if (!fs) {
     return res;
+  }
 
   for (int i = 0; i < fs->nfont; i++) {
     res->push_back(createFontDescriptor(fs->fonts[i]));
@@ -148,9 +155,9 @@ ResultSet *getAvailableFonts() {
   FcFontSet *fs = FcFontList(NULL, pattern, os);
   ResultSet *res = getResultSet(fs);
 
-  FcPatternDestroy(pattern);
-  FcObjectSetDestroy(os);
   FcFontSetDestroy(fs);
+  FcObjectSetDestroy(os);
+  FcPatternDestroy(pattern);
 
   return res;
 }
@@ -160,26 +167,33 @@ FcPattern *createPattern(FontDescriptor *desc) {
   FcInit();
   FcPattern *pattern = FcPatternCreate();
 
-  if (desc->postscriptName)
+  if (desc->postscriptName) {
     FcPatternAddString(pattern, FC_POSTSCRIPT_NAME, (FcChar8 *) desc->postscriptName);
+  }
 
-  if (desc->family)
+  if (desc->family) {
     FcPatternAddString(pattern, FC_FAMILY, (FcChar8 *) desc->family);
+  }
 
-  if (desc->style)
+  if (desc->style) {
     FcPatternAddString(pattern, FC_STYLE, (FcChar8 *) desc->style);
+  }
 
-  if (desc->italic)
+  if (desc->italic) {
     FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
+  }
 
-  if (desc->weight)
+  if (desc->weight) {
     FcPatternAddInteger(pattern, FC_WEIGHT, convertWeight(desc->weight));
+  }
 
-  if (desc->width)
+  if (desc->width) {
     FcPatternAddInteger(pattern, FC_WIDTH, convertWidth(desc->width));
+  }
 
-  if (desc->monospace)
+  if (desc->monospace) {
     FcPatternAddInteger(pattern, FC_SPACING, FC_MONO);
+  }
 
   return pattern;
 }
