@@ -1,7 +1,13 @@
 #include <fontconfig/fontconfig.h>
 #include "FontDescriptor.h"
 
+
+#define DEBUG printf("Debug %s:%d\n", __func__ , __LINE__)
+
+#define DEBUG_STR(name, str) printf("Debug %s:%d %s=%s\n", __func__ , __LINE__, name, str)
+
 int convertWeight(FontWeight weight) {
+  DEBUG;
   switch (weight) {
     case FontWeightThin:
       return FC_WEIGHT_THIN;
@@ -27,6 +33,7 @@ int convertWeight(FontWeight weight) {
 }
 
 FontWeight convertWeight(int weight) {
+  DEBUG;
   switch (weight) {
     case FC_WEIGHT_THIN:
       return FontWeightThin;
@@ -52,6 +59,7 @@ FontWeight convertWeight(int weight) {
 }
 
 int convertWidth(FontWidth width) {
+  DEBUG;
   switch (width) {
     case FontWidthUltraCondensed:
       return FC_WIDTH_ULTRACONDENSED;
@@ -77,6 +85,7 @@ int convertWidth(FontWidth width) {
 }
 
 FontWidth convertWidth(int width) {
+  DEBUG;
   switch (width) {
     case FC_WIDTH_ULTRACONDENSED:
       return FontWidthUltraCondensed;
@@ -102,6 +111,7 @@ FontWidth convertWidth(int width) {
 }
 
 FontDescriptor *createFontDescriptor(FcPattern *pattern) {
+  DEBUG;
   FcChar8 *path = NULL;
   FcChar8 *psName = NULL;
   FcChar8 *family = NULL;
@@ -112,14 +122,25 @@ FontDescriptor *createFontDescriptor(FcPattern *pattern) {
   int spacing = 0;
 
   FcPatternGetString(pattern, FC_FILE, 0, &path);
+  DEBUG_STR("FC_FILE", path);
+
   FcPatternGetString(pattern, FC_POSTSCRIPT_NAME, 0, &psName);
+  DEBUG_STR("FC_POSTSCRIPT_NAME", psName);
+
   FcPatternGetString(pattern, FC_FAMILY, 0, &family);
+  DEBUG_STR("FC_FAMILY", family);
+
   FcPatternGetString(pattern, FC_STYLE, 0, &style);
+  DEBUG_STR("FC_STYLE", style);
 
   FcPatternGetInteger(pattern, FC_WEIGHT, 0, &weight);
+  DEBUG;
   FcPatternGetInteger(pattern, FC_WIDTH, 0, &width);
+  DEBUG;
   FcPatternGetInteger(pattern, FC_SLANT, 0, &slant);
+  DEBUG;
   FcPatternGetInteger(pattern, FC_SPACING, 0, &spacing);
+  DEBUG;
 
   return new FontDescriptor(
     (char *) path,
@@ -135,29 +156,41 @@ FontDescriptor *createFontDescriptor(FcPattern *pattern) {
 }
 
 ResultSet *getResultSet(FcFontSet *fs) {
+  DEBUG;
   ResultSet *res = new ResultSet();
   if (!fs) {
     return res;
   }
+  DEBUG;
 
   for (int i = 0; i < fs->nfont; i++) {
     res->push_back(createFontDescriptor(fs->fonts[i]));
   }
+  DEBUG;
 
   return res;
 }
 
 ResultSet *getAvailableFonts() {
+  DEBUG;
   FcInit();
+  DEBUG;
 
   FcPattern *pattern = FcPatternCreate();
+  DEBUG;
   FcObjectSet *os = FcObjectSetBuild(FC_FILE, FC_POSTSCRIPT_NAME, FC_FAMILY, FC_STYLE, FC_WEIGHT, FC_WIDTH, FC_SLANT, FC_SPACING, NULL);
+  DEBUG;
   FcFontSet *fs = FcFontList(NULL, pattern, os);
+  DEBUG;
   ResultSet *res = getResultSet(fs);
+  DEBUG;
 
   FcFontSetDestroy(fs);
+  DEBUG;
   FcObjectSetDestroy(os);
+  DEBUG;
   FcPatternDestroy(pattern);
+  DEBUG;
 
   return res;
 }
